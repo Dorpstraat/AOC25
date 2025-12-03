@@ -7,8 +7,7 @@
  /* Antwoord met TEST2:  4174379265                                  */
  /* Antwoord met INPUT2: 37432260594                                 */
  /* Elapstijd Rexx versie - 25 min op Velocity systeem               */
- /* Elapstijd PL/1 versie - <1 min onder Hyperion/ProxMox            */
- /*                         (zelfs met debugging aan)                */
+ /* Elapstijd PL/1 versie - <1 min                                   */
  /*------------------------------------------------------------------*/
 
  puzzel4: procedure options(main);
