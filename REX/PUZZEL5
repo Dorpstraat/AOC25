@@ -1,0 +1,41 @@
+/* REXX ---------------------------------------------------------- */
+/*                                                                 */
+/* Dag-3 / Puzzel-5                                                */
+/* Author: Loet                                                    */
+/*                                                                 */
+/* Antwoord = 17278                                                */
+/*                                                                 */
+/* ----------------------------------------------------------------*/
+ trace off
+ debug = 1
+ numeric digits 20
+
+ "alloc dd(input) ds('aoc000.rex(test3)') shr reuse"
+ "alloc dd(input) ds('aoc000.input3') shr reuse"
+ "execio * diskr input (stem lines. finis)"
+
+ totaal = 0
+
+ /* Alle regels in memory */
+ do a=1 to lines.0
+    regel = strip(lines.a)
+
+    maxVal = 0
+    len = length(regel)
+    do i = 1 to len-1
+       getal1 = substr(regel,i,1)
+
+       do j = i+1 to len
+          getal2 = substr(regel,j,1)
+
+          val = 10*getal1 + getal2
+          if val > maxVal then maxVal = val
+        end
+     end
+     if debug=1 then
+     say '>>> 'regel 'maxVal='maxVal
+    totaal = totaal + maxVal
+ end
+
+ say "Antwoord: " totaal
+ exit 0

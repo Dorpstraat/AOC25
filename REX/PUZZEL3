@@ -1,0 +1,65 @@
+/* REXX ---------------------------------------------------------- */
+/*                                                                 */
+/* Dag-2 / Puzzel-1                                                */
+/* Author: Loet                                                    */
+/*                                                                 */
+/* Actual answer = 29818212493                                     */
+/*                                                                 */
+/* ----------------------------------------------------------------*/
+ trace off
+ debug = 1
+ numeric digits 20
+
+ "alloc dd(input) ds('aoc000.rex(test2)') shr reuse"
+ "alloc dd(input) ds('aoc000.input2') shr reuse"
+ "execio * diskr input (stem lines. finis)"
+
+ totaal = 0
+
+ /* Alle regels in memory */
+ do i=1 to lines.0
+
+    /* Splits en store alle ranges apart in een stem variabele */
+    regel   = strip(lines.i)
+    regel   = translate(regel,' ',',')
+
+    /* extraheer 1e range en ga door zo lang er nog ranges zijn */
+    parse var regel range rest
+
+    do while (range <> '')
+       parse var range a '-' b
+       if debug=1 then say '>>> 'range
+
+
+       maxlen   = length(b)      /* Stel b is het langste getal */
+       do L = 1 to maxlen%2
+           denom = (10 ** L) + 1
+           kmin  = 10 ** (L-1)
+           kmax  = (10 ** L) - 1
+
+           /* compute k range for which n = k * denom lies in [a,b] */
+
+           /* ceil(a/denom) */
+           klow = a % denom
+           if a // denom <> 0 then klow = klow + 1
+
+           if klow < kmin then klow = kmin
+
+           /* floor(b/denom) */
+           khigh = b % denom
+           if khigh > kmax then khigh = kmax
+
+           if klow <= khigh then do
+               count = (khigh - klow) + 1
+               sumk  = (klow + khigh) * count % 2  /* arithmetic series */
+               totaal = totaal + (denom * sumk)
+           end
+       end
+
+       parse var rest range rest
+    end
+ end
+
+
+ say "Som van alle ongeldige IDs: " totaal
+ exit 0

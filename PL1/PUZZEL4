@@ -1,0 +1,153 @@
+*process margins(2,72);
+ /*------------------------------------------------------------------*/
+ /* Dag-2 / Puzzel-2                                                 */
+ /* PL/I versie van Rexx versie PUZZEL4                              */
+ /* Author: Loet                                                     */
+ /*                                                                  */
+ /* Antwoord met TEST2:  4174379265                                  */
+ /* Antwoord met INPUT2: 37432260594                                 */
+ /* Elapstijd Rexx versie - 25 min op Velocity systeem               */
+ /* Elapstijd PL/1 versie - <1 min onder Hyperion/ProxMox            */
+ /*                         (zelfs met debugging aan)                */
+ /*------------------------------------------------------------------*/
+
+ puzzel4: procedure options(main);
+
+    dcl debug              fixed bin(31) init(1);
+    dcl totaal             fixed dec(20) init(0);
+
+    /* Inlezen van het bestand */
+    dcl line               char(8192) var;
+    dcl lines              (10000) char(8192) var;
+    dcl nlines             fixed bin(31) init(0);
+    dcl eof bit(1) aligned init('0'b);
+    dcl mod                builtin;
+
+    dcl infile file record input;
+
+    on endfile(infile) eof = '1'b;
+    open file(infile) title('INPUT');
+
+    /* Lees alle regels in memory                      */
+    /* Mogelijk bestaat de input uit 1 of meer regels  */
+    read file(infile) into(line);
+    do while(^eof);
+       nlines        = nlines + 1;
+       lines(nlines) = trim(line);
+       read file(infile) into(line);
+    end;
+    close file(infile);
+
+    /* Verwerking van alle regels */
+    dcl i fixed bin(31);
+
+    do i = 1 to nlines;
+
+       dcl regel char(8192) var;
+       dcl rest  char(8192) var;
+       dcl range char(256) var;
+
+       regel = translate(lines(i), ' ', ',');
+       rest  = regel;
+
+       /* Analyseer telkens ‚‚n range */
+       call get_range(rest, range, rest);
+
+       do while(range ^= "");
+
+          dcl a       fixed dec(20);
+          dcl b       fixed dec(20);
+          dcl n       fixed dec(20);
+          dcl L       fixed bin(31);
+          dcl len     fixed bin(31);
+          dcl reps    fixed bin(31);
+          dcl block   char(256) var;
+          dcl teststr char(256) var;
+          dcl strn    char(256) var;
+          dcl found bit(1) init('0'b);
+
+          /* a-b extract */
+          call parse_range(range, a, b);
+
+          if debug = 1 then put skip list('>>> ' || range);
+          do n = a to b;
+
+             strn = trim(n);    /* trim - result nonvar string */
+             len = length(strn);
+             found = '0'b;
+
+      /*     if debug = 1 then put skip data(len,strn); */
+
+     Llus:   do L = 1 to len / 2;
+
+                /* lengte moet deelbaar zijn door L */
+                if mod(len,L) ^= 0 then iterate;
+
+                reps = len / L;
+                block = substr(strn, 1, L);
+
+                /* skip voorloopnullen */
+                if left(strn,1) = '0' then iterate;
+
+                /* Bouw herhalingsstring */
+                teststr = '';
+                dcl r fixed bin(31);
+                do r = 1 to reps;
+                   teststr = teststr || block;
+                end;
+
+                if teststr = strn & reps >= 2 then do;
+                   totaal = totaal + n;
+                   found = '1'b;
+
+                   put skip list('+++ found ' || trim(n));
+                   leave Llus; /* stop L-lus */
+                end;
+
+             end; /* Llus loop */
+
+          end; /* n loop */
+
+          call get_range(rest, range, rest);
+
+       end; /* while range */
+    end;
+
+    put skip list('Antwoord: ' || totaal);
+
+ return /* EndOfProgram */
+
+ parse_range: procedure(range, a, b);
+
+    dcl range char(*);
+    dcl a fixed dec(20);
+    dcl b fixed dec(20);
+    dcl pos fixed bin(31);
+
+    pos = index(range, '-');
+
+    a = decimal(substr(range, 1, pos-1));
+    b = decimal(substr(range, pos+1));
+
+ /* put skip data(range,a,b); */
+ end parse_range;
+
+ get_range: procedure(str, first, rest);
+    dcl str char(*);
+    dcl first char(256) var;
+    dcl rest char(8192) var;
+    dcl p fixed bin(31);
+
+    p = index(str, ' ');
+    if p = 0 then do;
+       first = str;
+       rest = '';
+    end;
+    else do;
+       first = substr(str,1,p-1);
+       rest  = substr(str,p+1);
+    end;
+
+ end get_range;
+
+ end pl1puz4;

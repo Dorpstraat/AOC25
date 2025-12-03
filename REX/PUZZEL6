@@ -1,0 +1,60 @@
+/* REXX ---------------------------------------------------------- */
+/*                                                                 */
+/* Dag-3 / Puzzel-6                                                */
+/* Author: Loet                                                    */
+/*                                                                 */
+/* Antwoord = 171528556468625                                      */
+/*                                                                 */
+/* ----------------------------------------------------------------*/
+ trace off
+ debug = 1
+ numeric digits 20
+
+ "alloc dd(input) ds('aoc000.rex(test3)') shr reuse"
+ "alloc dd(input) ds('aoc000.input3') shr reuse"
+ "execio * diskr input (stem lines. finis)"
+
+ totaal = 0
+
+ /* Alle regels in memory */
+ do a=1 to lines.0
+    regel    = strip(lines.a)
+    len      = length(regel)
+    maxGetal = 12
+    remove   = len - maxGetal /* zoveel mogen we weggooien */
+
+    rest     = ''
+    restlen  = 0
+
+    do i = 1 to len
+       d = substr(regel,i,1)
+
+       /* De eerstekeer is er nog niets */
+       do while (restlen>0 & remove>0)
+          digit = substr(rest,restlen,1)
+          if digit < d
+          then do
+                if restlen = 1
+                then rest = ''
+                else rest = substr(rest,1,restlen-1)
+                restlen   = restlen - 1
+                remove    = remove - 1
+               end
+          else leave
+       end
+
+       rest = rest || d
+       restlen = restlen + 1
+    end
+
+   /* Als nog te lang ? truncate van rechts */
+   if restlen > maxGetal then
+     rest = substr(rest,1,maxGetal)
+
+    if debug=1 then say '>>> 'regel rest
+
+   totaal = totaal + rest
+ end
+
+ say "Antwoord: " totaal
+ exit 0

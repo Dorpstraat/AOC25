@@ -1,0 +1,42 @@
+/* REXX ---------------------------------------------------------- */
+/*                                                                 */
+/* Dag-1 / Puzzel-1                                                */
+/* Author: Loet                                                    */
+/*                                                                 */
+/* Actual pasword=1066                                             */
+/*                                                                 */
+/* ----------------------------------------------------------------*/
+ trace off
+ debug = 0
+
+ password = 0
+ stand    = 50
+
+ "alloc dd(input) ds('aoc000.input1') shr reuse"
+ "execio * diskr input (stem lines. finis)"
+
+ do i=1 to lines.0
+    stap     = strip(lines.i)
+    richting = left(stap,1)
+    aantal   = substr(stap,2)
+    select
+      when ( richting = 'L' ) then stand = stand - aantal
+      otherwise stand = stand + aantal
+    end
+    do forever
+       if debug=1
+       then say 'stap='stap 'aantal='aantal 'stand='stand
+       select
+         when ( stand >= 100 ) then stand = stand - 100
+         when ( stand < 0 ) then stand = 100 + stand
+         otherwise leave
+       end
+    end
+    if (stand = 0) then password = password + 1
+    if debug=1 then say 'wachtwoord='password
+ end
+
+ say 'Actual password = 'password
+
+ "free dd(input)"
+return
