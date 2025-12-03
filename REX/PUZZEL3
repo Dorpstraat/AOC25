@@ -4,7 +4,8 @@
 /* Author: Loet                                                    */
 /*                                                                 */
 /* Actual answer = 29818212493                                     */
-/*                                                                 */
+/* With a little help from a student, made it a bit more efficient */
+/* and smarter....thanks, learned a lot                            */
 /* ----------------------------------------------------------------*/
  trace off
  debug = 1
