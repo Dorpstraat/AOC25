@@ -1,0 +1,77 @@
+/* REXX ---------------------------------------------------------- */
+/*                                                                 */
+/* Dag-4 / Puzzel-2                                                */
+/* Author: Loet                                                    */
+/*                                                                 */
+/* Antwoord = 8946                                                 */
+/*                                                                 */
+/* ----------------------------------------------------------------*/
+ trace off
+ debug = 0
+ numeric digits 20
+
+ "alloc dd(input) ds('aoc000.rex(test4)') shr reuse"
+ "alloc dd(input) ds('aoc000.input4') shr reuse"
+ "execio * diskr input (stem lines. finis)"
+
+ do i=1 to lines.0
+    regel.i = strip(lines.i)
+ end
+ regel.0 = lines.0
+
+ /* --- Tel toegankelijke rollen --- */
+ totaal = 0
+ aantal = regel.0
+ lengte = length(regel.1)  /* Zelfde lengte alle regels */
+
+ /* Alle regels in memory */
+ do until (verwijderd = 0)
+   verwijderd = 0
+
+   do row=1 to aantal
+
+      if debug=1 then say '>>> 'row regel.row
+
+      do col = 1 to lengte
+         if substr(regel.row, col, 1) = '@' then
+         do
+            buren = telBuren(row, col)
+            if buren < 4 then
+            do
+              totaal = totaal + 1
+              verwijderd = 1
+              regel.row = overlay('x',regel.row,col,1)
+            end
+         end
+       end
+   end
+ end
+
+ say "Antwoord: " totaal
+ exit 0
+
+
+ /* --- Functie om aantal @-buren te tellen --- */
+ telBuren:
+   parse arg row,col
+   cnt = 0
+
+   /* row = regel nummer                */
+   /* col = kolom in onderzoek          */
+   do dr = -1 to 1
+     do dc = -1 to 1
+       if dr = 0 & dc = 0 then iterate   /* eigen positie overslaan */
+
+       rr = row + dr  /* regel boven of onder */
+       cc = col + dc  /* kolom voor of na     */
+
+       /* check bestaanbaarheid regel/kolom */
+       if rr < 1 | rr > aantal | cc < 1 | cc > lengte then iterate
+
+       /* check inhoud */
+       if substr(regel.rr, cc, 1) = '@' then cnt = cnt+1
+     end
+   end
+
+   return cnt
+ end
