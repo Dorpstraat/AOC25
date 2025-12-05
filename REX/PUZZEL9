@@ -1,0 +1,43 @@
+/* REXX ---------------------------------------------------------- */
+/*                                                                 */
+/* Dag-5 / Puzzel-1                                                */
+/* Author: Loet                                                    */
+/*                                                                 */
+/* Antwoord = 712                                                  */
+/*                                                                 */
+/* ----------------------------------------------------------------*/
+ trace off
+ debug = 1
+ numeric digits 20
+
+ "alloc dd(input) ds('aoc000.rex(test5)') shr reuse"
+ "alloc dd(input) ds('aoc000.input5') shr reuse"
+ "execio * diskr input (stem lines. finis)"
+ say '>>> 'lines.0 regels ingelezen
+
+ /* Verse ranges inlezen */
+ do i=1 to lines.0
+    regel    = strip(lines.i)
+    if regel = '' then leave
+    parse var regel vers_laag.i '-' vers_hoog.i
+ end
+ ranges = i-1
+
+ /* Beschikbare inlezen en matchen met verse ranges */
+ j = 0
+ vers = 0
+ do i=i+1 to lines.0
+    regel  = strip(lines.i)
+    j      = j+1
+
+    do r=1 to ranges
+       if regel >= vers_laag.r & regel <= vers_hoog.r then
+       do
+         vers = vers + 1
+         leave
+       end
+    end
+ end
+
+ say "Antwoord: " vers
+ exit 0

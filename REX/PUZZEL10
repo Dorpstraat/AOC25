@@ -1,0 +1,72 @@
+/* REXX ---------------------------------------------------------- */
+/*                                                                 */
+/* Dag-5 / Puzzel-2                                                */
+/* Author: Loet                                                    */
+/*                                                                 */
+/* Antwoord = 332998283036769                                      */
+/*                                                                 */
+/* ----------------------------------------------------------------*/
+ trace off
+ debug = 1
+ numeric digits 20
+
+ "alloc dd(input) ds('aoc000.rex(test5)') shr reuse"
+ "alloc dd(input) ds('aoc000.input5') shr reuse"
+ "execio * diskr input (stem lines. finis)"
+
+ /* Verse ranges inlezen */
+ do i=1 to lines.0
+    regel    = strip(lines.i)
+    if regel = '' then leave
+    parse var regel vers_low.i '-' vers_high.i
+ end
+ ranges = i-1
+
+ /* Tabellen sorteren op low om ze daarna gemakkelijker te */
+ /* kunnen samenvoegen                                     */
+ do i = 1 to ranges
+    do j = i+1 to ranges
+       if vers_low.i > vers_low.j then
+       do
+         t=vers_low.i; vers_low.i=vers_low.j; vers_low.j=t
+         t=vers_high.i; vers_high.i=vers_high.j; vers_high.j=t
+       end
+    end
+ end
+
+ /* Ranges samenvoegen */
+ merged  = 0
+ newLow  = vers_low.1
+ newHigh = vers_high.1
+
+ do i = 2 to ranges
+    if vers_low.i <= (newHigh+1)
+    then do
+          /* overlappende of aansluitende range samenvoegen */
+          if vers_high.i > newHigh then newHigh = vers_high.i
+    end
+    else do
+          /* deze range valt niet in de samengevoegde range */
+          /* store samengevoegde                            */
+          merged       = merged + 1
+          mlow.merged  = newLow
+          mhigh.merged = newHigh
+
+          /* Nieuwe samengevoegde starten */
+          newLow       = vers_low.i
+          newHigh      = vers_high.i
+    end
+ end
+
+ /* laatste samengevoegde range opslaan */
+ merged       = merged + 1
+ mlow.merged  = newLow
+ mhigh.merged = newHigh
+
+ totaal_vers = 0
+ do i = 1 to merged
+    totaal_vers = totaal_vers + (mhigh.i - mlow.i + 1)
+ end
+
+ say "Antwoord: " totaal_vers
+ exit 0
