@@ -1,0 +1,88 @@
+/* REXX ---------------------------------------------------------- */
+/*                                                                 */
+/* Dag-6 / Puzzel-2                                                */
+/* Author: Loet                                                    */
+/*                                                                 */
+/* Antwoord = 8843673199391                                        */
+/*                                                                 */
+/* ----------------------------------------------------------------*/
+ trace off
+ debug = 0
+ numeric digits 20
+ start = time("R")
+
+ "alloc dd(input) ds('aoc000.rex(test6)') shr reuse"
+ "alloc dd(input) ds('aoc000.input6') shr reuse"
+ "execio * diskr input (stem lines. finis)"
+
+
+ /* Parse action line */
+ last_line = lines.0
+ regel     = lines.last_line
+ i         = 0
+ rest      = regel
+ do forever
+    parse var rest operation rest
+    if operation = '' then leave
+    i = i+1
+    oper.i = operation
+ end
+
+ /* Kantel de data , rows worden cols en cols worden rows */
+ /* eerst langste regel bepalen                           */
+ maxCol = 0
+ do i=1 to lines.0-1
+    if length(lines.i) > maxCol then
+    do
+      regel  = strip(lines.i,'T')
+      maxCol = length(regel)
+      rowx   = i
+    end
+ end
+ say '>> maxCol='maxCol 'in row='rowx
+
+ /* Tot maxLen cols de data kantelen */
+ op     = 1
+ subtot = 0
+ totaal = 0
+ do i=1 to maxCol
+    newNumber = ''
+    do j=1 to lines.0-1
+       newNumber = newNumber||substr(lines.j,i,1)
+    end
+    if debug=1 then say '>>> newNumber='newNumber
+
+    if (strip(newNumber) = '')
+    then do
+          /* Alle Cephalopod getallen verzameld per kolom */
+          /* goto next operation                          */
+          op    = op+1
+          totaal = totaal + subtot
+          if debug=1 then say '>>> ',
+                              'subtot='subtot ,
+                              'totaal='totaal
+          subtot = 0
+    end
+    else do
+           if debug=1 then say '>>> newNumber='newNumber ,
+                               'Oper='oper.op
+           select
+             when (subtot=0) then subtot = newNumber
+             otherwise
+             do
+               if oper.op = '*'
+               then subtot = subtot * newNumber
+               else subtot = subtot + newNumber
+             end
+           end
+           if debug=1 then say '>>> newNumber='newNumber,
+                               'subtot='subtot
+         end
+ end
+ totaal = totaal + subtot
+ say "Antwoord: " totaal
+
+ elaps = time("E")-start
+ say "++ Elaps seconden "elaps
+ say "   Elaps minuten  "format(elaps/60,,2)
+ exit 0
