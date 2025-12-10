@@ -1,0 +1,60 @@
+/* REXX ---------------------------------------------------------- */
+/*                                                                 */
+/* Dag-7 / Puzzel-1                                                */
+/* Author: Loet                                                    */
+/*                                                                 */
+/* Antwoord = 1602                                                 */
+/*                                                                 */
+/* ----------------------------------------------------------------*/
+ trace off
+ debug = 0
+ numeric digits 20
+ start = time("R")
+
+ "alloc dd(input) ds('aoc000.rex(test7)') shr reuse"
+ "alloc dd(input) ds('aoc000.input7') shr reuse"
+ "execio * diskr input (stem lines. finis)"
+
+ /* De 1e Beam positie */
+ sCol  = index(lines.1,'S')
+
+ /* De status van de beams wordt in bLine vastgelegd */
+ bLine = lines.2
+ bLine = overlay('|',bLine,sCol)
+
+ gSplit = 0
+ cols   = length(lines.1)      /* Bepaal regel lengte */
+ do i=3 to lines.0
+
+    /* Bepaal posities splitters in nieuwe regel */
+    a     = pos('^',lines.i,1)
+    do while (a>0)
+       if debug=1 then say '++ a='a
+       /* Splitter betekent dat er links en rechts     */
+       /* nieuwe beams verschijnen, als er een beam    */
+       /* was op die positie. Zo ja, dan verdwijnt die */
+       select
+         when( substr(bLine,a,1) = '|' ) then
+         do
+           /* Beam, dus gesplitst */
+           gSplit = gSplit+1
+           b1 = a-1   /* Pos links */
+           b2 = a+1   /* Pos rechts */
+           if b1>0 then bLine = overlay('|',bLine,b1)
+           if b1<=Cols then bLine = overlay('|',bLine,b2)
+           /* verwijderen beam op plek van splitter */
+           bline = overlay('.',bLine,a)
+         end
+         otherwise nop
+       end
+       if debug=1 then say '++ bLine 'bLine
+       a = pos('^',lines.i,a+1)
+    end
+ end
+
+ say "Antwoord: " gSplit
+
+ elaps = time("E")-start
+ say "++ Elaps seconden "elaps
+ say "   Elaps minuten  "format(elaps/60,,2)
+ exit 0
