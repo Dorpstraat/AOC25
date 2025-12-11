@@ -1,0 +1,116 @@
+/* REXX ---------------------------------------------------------- */
+/*                                                                 */
+/* Dag-11 / Puzzel-2                                               */
+/* Author: Loet                                                    */
+/*                                                                 */
+/* Antwoord = 367579641755680                                      */
+/*                                                                 */
+/* Heeft andere testinput dan die in deel-1 wordt gebruikt         */
+/* TEST11B ipv TEST11                                              */
+/*                                                                 */
+/* Bestaat ook een Python versie van                               */
+/*                                                                 */
+/* ----------------------------------------------------------------*/
+ trace off
+ debug = 0
+ numeric digits 20
+ start = time("R")
+
+ "alloc dd(input) ds('aoc000.rex(test11b)') shr reuse"
+ "alloc dd(input) ds('aoc000.input11') shr reuse"
+ "execio * diskr input (stem lines. finis)"
+
+ say 'Aantal regels:' lines.0
+
+ /* Grafiek opbouwen */
+ do i = 1 to lines.0
+     parse upper var lines.i apparaat ':' rest
+     rest = strip(rest)
+     uitgangen.apparaat = rest        /* lijst van doel-apparaten */
+ end
+
+ /* ------------------------------------------------------------ */
+ /* Start vanaf SVR                                              */
+ /* ------------------------------------------------------------ */
+ antwoord = zoekPad("SVR", 0, 0)
+
+ say "Aantal paden SVR -> OUT met DAC in FFT:" antwoord
+
+ elaps = time("E")-start
+ say "++ Elaps seconden "elaps
+ say "   Elaps minuten  "format(elaps/60,,2)
+ exit 0
+
+ /* -------------------------------------------------------------- */
+ /* Arg: knoop, heeftDAC, heeftFFT                                   */
+ /* Retourneert aantal paden vanuit knoop die DAC & FFT passeren      */
+ /* -------------------------------------------------------------- */
+ zoekPad: procedure expose uitgangen. memo. debug
+
+     knoop    = arg(1)
+     heeftDAC = arg(2)
+     heeftFFT = arg(3)
+
+     if debug=1 then say '>> zoekpad: 'knoop heeftDAC heeftFFT
+
+     /* Status vastleggen voor latere zoektochten */
+     /* Versneld het proces                       */
+     key = knoop || "_" || heeftDAC || "_" || heeftFFT
+
+     /* Is dit apparaat al voorbij gekomen ? */
+     resultaat = memoGet( key,resultaat )
+     if resultaat <> "" then return resultaat
+
+     /* Flags updaten */
+     if knoop = "DAC" then heeftDAC = 1
+     if knoop = "FFT" then heeftFFT = 1
+
+     /* Eindpunt */
+     if knoop = "OUT" then do
+         if heeftDAC = 1 & heeftFFT = 1 then resultaat = 1
+         else resultaat = 0
+
+         /* Cache status zoektocht */
+         call memoSet key resultaat
+         return resultaat
+     end
+
+     /* Tel paden */
+     totaal = 0
+     doelen = strip(uitgangen.knoop)
+     do while doelen <> ""
+         parse var doelen doel rest
+         doelen = strip(rest)
+         if doel <> "" then do
+             totaal = totaal + zoekPad(doel, heeftDAC, heeftFFT)
+         end
+     end
+
+     /* Opslaan in memo */
+     call memoSet key totaal
+ return totaal
+
+ /* -------------------------------------------------------------- */
+ /* memoGet                                                        */
+ /* Haalt resultaat op uit memo                                    */
+ /* -------------------------------------------------------------- */
+ memoGet: procedure expose memo. debug
+     parse arg key
+
+     select
+       when (symbol('memo.'||key)= 'VAR')
+         then result = value('memo.'||key)
+       otherwise result = ""
+     end
+
+     if debug=1 then say '>> memoGet:' key result
+ return result
+
+ /* -------------------------------------------------------------- */
+ /* memoSet                                                        */
+ /* Slaat resultaat op in memo                                     */
+ /* -------------------------------------------------------------- */
+ memoSet: procedure expose memo. debug
+     parse arg key value
+     interpret 'memo.'key'='value
+ return
