@@ -1,0 +1,86 @@
+/* REXX ---------------------------------------------------------- */
+/*                                                                 */
+/* Dag-11 / Puzzel-1                                               */
+/* Author: Loet                                                    */
+/*                                                                 */
+/* Antwoord = 640                                                  */
+/*                                                                 */
+/* ----------------------------------------------------------------*/
+ trace off
+ debug = 0
+ numeric digits 20
+ start = time("R")
+
+ "alloc dd(input) ds('aoc000.rex(test11)') shr reuse"
+ "alloc dd(input) ds('aoc000.input11') shr reuse"
+ "execio * diskr input (stem lines. finis)"
+
+ say 'Aantal regels:' lines.0
+
+ /*  Verzamel uitgangen data  */
+ do i = 1 to lines.0
+   parse upper var lines.i apparaat ":" rest
+   uitgangen.apparaat = strip(rest)
+ end
+
+ padAantal   = 0
+ huidigPad.0 = 0
+
+ /*  Start de zoektocht vanaf "YOU"  */
+ call zoekPad "YOU"
+
+ say "Totaal aantal paden gevonden: " padAantal
+
+ exit 0
+
+  /* Recursieve subroutine */
+ zoekPad: procedure expose uitgangen. padAantal huidigPad.
+   parse arg huidige
+
+   if debug=1 then say '>> Zoek voor apparaat: 'huidige
+
+   /* Bouw het huidige pad op */
+   j           = huidigPad.0 + 1
+   huidigPad.0 = j
+   huidigPad.j = huidige
+
+   /* Als we OUT hebben bereikt, hebben we een compleet pad */
+   if huidige = "OUT" then
+   do
+      padAantal = padAantal + 1
+
+      /* Toon pad */
+      if debug=1 then
+      do
+        tekst = ""
+        do k = 1 to huidigPad.0
+          if k > 1 then tekst = tekst || " -> "
+          tekst = tekst || huidigPad.k
+        end
+        say "Pad gevonden: " tekst
+      end
+
+      return
+   end
+
+   /* Voor elk volgend apparaat */
+   doelen = strip(uitgangen.huidige)
+   if doelen = "" then return
+
+   do while doelen <> ""
+     parse var doelen doel restDoelen
+     doelen = strip(restDoelen)
+
+     /* Recursieve vervolgzoektocht */
+     call zoekPad doel
+   end
+
+ return
+
+
+ say "Antwoord: " padAantal
+
+ elaps = time("E")-start
+ say "++ Elaps seconden "elaps
+ say "   Elaps minuten  "format(elaps/60,,2)
+ exit 0
