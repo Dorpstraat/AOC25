@@ -1,0 +1,58 @@
+/* REXX ---------------------------------------------------------- */
+/*                                                                 */
+/* Dag-9 / Puzzel-1                                                */
+/* Author: Loet                                                    */
+/*                                                                 */
+/* Antwoord : 4748769124                                           */
+/* Af                                                              */
+/* ----------------------------------------------------------------*/
+ trace off
+ debug = 1
+ numeric digits 20
+ start = time("R")
+
+ "alloc dd(input) ds('aoc000.rex(test9)') shr reuse"
+ "alloc dd(input) ds('aoc000.input9') shr reuse"
+ "execio * diskr input (stem lines. finis)"
+
+ /* Parse coordinaten */
+ aantal = lines.0
+ do i = 1 to aantal
+     parse var lines.i x.i "," y.i rest
+ end
+
+ maxArea = 0
+ bestA = 0
+ bestB = 0
+
+ /* Alle mogelijke oppervlaktes berekenen */
+ do i = 1 to aantal-1
+     do j = i+1 to aantal
+
+         dx = x.i - x.j
+         if dx < 0 then dx = -dx
+
+         dy = y.i - y.j
+         if dy < 0 then dy = -dy
+
+         area = (dx+1) * (dy+1)
+
+         if area > maxArea then
+         do
+            maxArea = area
+            bestA = i
+            bestB = j
+         end
+     end
+ end
+
+ say "Grootste rechthoek   :" maxArea
+ say "Tussen de coordinaten:"
+ say "  ("x.bestA","y.bestA")  en  ("x.bestB","y.bestB")"
+
+ elaps = time("E")-start
+ say ""
+ say "++ Elaps seconden "elaps
+ say "   Elaps minuten  "format(elaps/60,,2)
+ exit 0
+
